@@ -1,6 +1,6 @@
 {
   "name": "mochiko",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "An automated GitHub issues generator for new projects",
   "main": "build/index.js",
   "module": "src/index.js",
