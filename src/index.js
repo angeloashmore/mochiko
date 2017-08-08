@@ -115,35 +115,27 @@ getAllIssues(client)
         }
       }
 
-      if (argv.dryRun) {
-        console.log(
-          formatMessage({
-            status: 'success',
-            tag: path.basename(template.file),
-            message: `Issue created at #<dry-run>.`,
-          })
-        )
-      } else {
-        createIssue(client)(template)
-          .then(created => {
-            console.log(
-              formatMessage({
-                status: 'success',
-                tag: path.basename(template.file),
-                message: `Issue created at #${created.number}.`,
-              })
-            )
-          })
-          .catch(error => {
-            console.error(
-              formatMessage({
-                status: 'failure',
-                tag: path.basename(template.file),
-                message: `Unable to create issue\n  ${error}`,
-              })
-            )
-          })
-      }
+      ;(argv.dryRun
+        ? Promise.resolve({ number: '<dry-run>' })
+        : createIssue(client)(template))
+        .then(created => {
+          console.log(
+            formatMessage({
+              status: 'success',
+              tag: path.basename(template.file),
+              message: `Issue created at #${created.number}.`,
+            })
+          )
+        })
+        .catch(error => {
+          console.error(
+            formatMessage({
+              status: 'failure',
+              tag: path.basename(template.file),
+              message: `Unable to create issue\n  ${error}`,
+            })
+          )
+        })
     })
   })
   .catch(error => {
