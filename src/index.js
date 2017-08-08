@@ -48,9 +48,7 @@ const { argv } = yargs
     alias: 'r',
     describe: 'Full repository name (e.g. WalltoWall/mochiko)',
     demandOption: true,
-    default: repo
-      ? `${repo.owner}/${repo.name}`
-      : undefined
+    default: repo ? `${repo.owner}/${repo.name}` : undefined,
   })
   .option('force', {
     describe: 'Ignore existing issues',

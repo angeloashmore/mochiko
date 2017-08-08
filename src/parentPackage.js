@@ -46,7 +46,7 @@ const findFileUpward = ({ file, basedir = __dirname, skip = 0 }) => {
 export const getParentPackage = (skip = 1) => {
   const file = findFileUpward({
     file: FILENAME,
-    skip
+    skip,
   })
 
   if (!file) return false
@@ -62,6 +62,6 @@ export const extractRepository = data => {
 
   return {
     owner: pathname.split('/')[1],
-    name: path.basename(pathname, '.git')
+    name: path.basename(pathname, '.git'),
   }
 }
