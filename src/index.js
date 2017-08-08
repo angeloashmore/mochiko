@@ -24,6 +24,12 @@ const LABEL = {
   color: '9842f4', // purple
 }
 
+// Creates a formatted string to display information.
+const formatMessage = ({ status, tag, message }) =>
+  [status && STATUS[status.toUpperCase()], tag && `[${tag}]`, message]
+    .filter(Boolean)
+    .join(' ')
+
 // Get the parent package's data.
 const parentPackage = getParentPackage()
 const repo = parentPackage ? extractRepository(parentPackage) : false
@@ -71,12 +77,6 @@ const templates = fs
 const findExistingIssueFactory = allExisting => template =>
   allExisting.find(issue => issue.title === template.data.title)
 
-// Creates a formatted string to display information about a template.
-const formatMessage = ({ status, template, message }) => {
-  const basename = path.basename(template.file)
-  return `${STATUS[status.toUpperCase()]} [${basename}] ${message}`
-}
-
 // Create the standard mochiko label. Ignore errors.
 createLabel(client)(LABEL).catch(() => {})
 
@@ -93,7 +93,7 @@ getAllIssues(client)
           console.log(
             formatMessage({
               status: 'warning',
-              template,
+              tag: path.basename(template.file),
               message: `Issue exists at #${existing.number}. Use --force to create.`,
             })
           )
@@ -106,7 +106,7 @@ getAllIssues(client)
           console.log(
             formatMessage({
               status: 'success',
-              template,
+              tag: path.basename(template.file),
               message: `Issue created at #${created.number}.`,
             })
           )
@@ -115,11 +115,18 @@ getAllIssues(client)
           console.error(
             formatMessage({
               status: 'failure',
-              template,
+              tag: path.basename(template.file),
               message: `Unable to create issue\n  ${error}`,
             })
           )
         })
     })
   })
-  .catch(console.error)
+  .catch(error => {
+    console.error(
+      formatMessage({
+        status: 'failure',
+        message: error,
+      })
+    )
+  })
