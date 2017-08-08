@@ -4,11 +4,11 @@ An automated GitHub issues generator for new projects.
 
 ## Installation
 
-1. Add `mochiko` to your project's development dependencies via Yarn.
+1. Add `mochiko` to your project's development dependencies.
 
-  ```sh
-  $ yarn add walltowall/mochiko --dev
-  ```
+   ```sh
+   yarn add mochiko --dev
+   ```
 
 1. Add a script to your project's `package.json`.
 
@@ -18,15 +18,15 @@ An automated GitHub issues generator for new projects.
 
    "scripts": {
      // ...
-     "mochiko:init": "mochiko init",
+     "mochiko": "mochiko",
      // ...
    },
 
    // ...
    ```
 
-1. Run the default mochiko script.
+1. Run the mochiko script.
 
    ```sh
-   $ yarn run mochiko:init
+   yarn run mochiko -- -u <github_username> -t <github_access_token>
    ```
