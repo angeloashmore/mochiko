@@ -4,6 +4,9 @@
   "description": "An automated GitHub issues generator for new projects",
   "main": "build/index.js",
   "module": "src/index.js",
+  "bin": {
+    "mochiko": "build/index.js"
+  },
   "scripts": {
     "format": "prettier --trailing-comma es5 --no-semi --single-quote --write 'src/**/*.js'",
     "build": "babel src --out-dir build",
