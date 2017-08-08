@@ -5,7 +5,6 @@ import fs from 'fs'
 import colors from 'colors/safe'
 import matter from 'gray-matter'
 import yargs from 'yargs'
-import getParentPackage from 'parent-package-json'
 import { createClient, createIssue, createLabel, getAllIssues } from './github'
 
 // Location of templates directory.
@@ -28,10 +27,6 @@ const LABEL = {
   color: '9842f4', // purple
 }
 
-// Get parent package.json data. Used to guess default repository (see usage in
-// the `repo` CLI argument configuration).
-const parentPackage = getParentPackage()
-
 // Setup CLI arguments.
 const { argv } = yargs
   .option('user', {
@@ -48,9 +43,6 @@ const { argv } = yargs
     alias: 'r',
     describe: 'Full repository name (e.g. WalltoWall/mochiko)',
     demandOption: true,
-    default: parentPackage
-      ? `${DEFAULT_OWNER}/${parentPackage.name}`
-      : undefined,
   })
   .option('force', {
     describe: 'Ignore existing issues',

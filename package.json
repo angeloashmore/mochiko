@@ -35,7 +35,6 @@
     "colors": "^1.1.2",
     "gray-matter": "^3.0.2",
     "node-fetch": "^1.7.1",
-    "parent-package-json": "^2.0.0",
     "yargs": "^8.0.2"
   }
 }
