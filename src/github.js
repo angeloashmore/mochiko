@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { encode } from 'base-64'
 
-export const createClient = ({ repo, token, user }) => async (
+export const createClient = ({ repo, token, user }) => (
   partialEndpoint,
   options = {}
 ) => {
@@ -10,22 +10,33 @@ export const createClient = ({ repo, token, user }) => async (
     Authorization: 'Basic ' + encode(`${user}:${token}`),
   }
 
-  const response = await fetch(endpoint, { ...options, headers })
-
-  if (response.status >= 400) {
-    const error = await response.error()
-
-    console.error(error)
-
-    return error
-  }
-
-  const json = await response.json()
-
-  return json
+  return fetch(endpoint, { ...options, headers })
+    .then(response => {
+      return response.json()
+    })
+    .catch(error => {
+      console.error(error)
+      return error
+    })
 }
 
-export const getAllIssues = client => client('issues')
+export const getAllIssues = async (client, aggregated = [], page = 1) => {
+  if (!aggregated.length) {
+    console.log(`starting to fetch existing issues`)
+  }
+
+  console.time(`fetched issues`)
+  const issues = await client(`issues?page=${page}`)
+
+  if (!issues.length) {
+    console.timeEnd(`fetched issues`)
+    return aggregated
+  }
+
+  aggregated = aggregated.concat(issues)
+
+  return await getAllIssues(client, aggregated, page + 1)
+}
 
 export const createIssue = client => async template => {
   const body = JSON.stringify({
