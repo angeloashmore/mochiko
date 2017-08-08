@@ -56,7 +56,7 @@ const { argv } = yargs
     default: repo ? `${repo.owner}/${repo.name}` : undefined,
   })
   .option('templates', {
-    alias: '-f',
+    alias: 'f',
     describe: 'List of templates to use',
     type: 'array',
   })
@@ -65,7 +65,7 @@ const { argv } = yargs
     default: false,
   })
   .option('dry-run', {
-    alias: '-n',
+    alias: 'n',
     describe: "Don't create issues, but show what would have been created",
     default: false,
   })
