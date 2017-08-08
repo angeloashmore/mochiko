@@ -64,7 +64,7 @@ const templates = fs
 
 // Factory to create issue existance checker. Simple algorithm checks if an
 // issue, open or closed, with the same title as the template already exists.
-// Algorhithm can be improved if issues (*crickets*) occur.
+// Algorithm can be improved if issues (*crickets*) occur.
 const findExistingIssueFactory = allExisting => template =>
   allExisting.find(issue => issue.title === template.data.title)
 
