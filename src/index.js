@@ -79,43 +79,45 @@ const formatMessage = ({ status, template, message }) => {
 createLabel(client)(LABEL).catch(() => {})
 
 // Do the thing, where the thing is create GitHub issues.
-getAllIssues(client).then(allIssues => {
-  const findExistingIssue = findExistingIssueFactory(allIssues)
+getAllIssues(client)
+  .then(allIssues => {
+    const findExistingIssue = findExistingIssueFactory(allIssues)
 
-  templates.forEach(template => {
-    if (!argv.force) {
-      const existing = findExistingIssue(template)
+    templates.forEach(template => {
+      if (!argv.force) {
+        const existing = findExistingIssue(template)
 
-      if (existing) {
-        console.log(
-          formatMessage({
-            status: 'warning',
-            template,
-            message: `Issue exists at #${existing.number}. Use --force to create.`,
-          })
-        )
-        return
+        if (existing) {
+          console.log(
+            formatMessage({
+              status: 'warning',
+              template,
+              message: `Issue exists at #${existing.number}. Use --force to create.`,
+            })
+          )
+          return
+        }
       }
-    }
 
-    createIssue(client)(template)
-      .then(created => {
-        console.log(
-          formatMessage({
-            status: 'success',
-            template,
-            message: `Issue created at #${created.number}.`,
-          })
-        )
-      })
-      .catch(error => {
-        console.error(
-          formatMessage({
-            status: 'failure',
-            template,
-            message: `Unable to create issue\n  ${error}`,
-          })
-        )
-      })
+      createIssue(client)(template)
+        .then(created => {
+          console.log(
+            formatMessage({
+              status: 'success',
+              template,
+              message: `Issue created at #${created.number}.`,
+            })
+          )
+        })
+        .catch(error => {
+          console.error(
+            formatMessage({
+              status: 'failure',
+              template,
+              message: `Unable to create issue\n  ${error}`,
+            })
+          )
+        })
+    })
   })
-})
+  .catch(console.error)
