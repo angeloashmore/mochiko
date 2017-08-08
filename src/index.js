@@ -11,10 +11,6 @@ import { createClient, createIssue, createLabel, getAllIssues } from './github'
 // Location of templates directory.
 const TEMPLATES_DIR = path.resolve(__dirname, '..', 'issues')
 
-// Default GitHub repository owner. Only used when a parent package.json is
-// detected.
-const DEFAULT_OWNER = 'WalltoWall'
-
 // Status strings for CLI output.
 const STATUS = {
   FAILURE: colors.red('failure'),
