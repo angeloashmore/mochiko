@@ -3,7 +3,7 @@
 An automated GitHub issues generator for new projects.
 
 This tool helps teams bootstrap new GitHub repositories by generating a
-standard set of issues to track a project's prgress.
+standard set of issues to track a project's progress.
 
 The current set of issues is heavily influenced by the [Humaan Website
 Checklist][0].
