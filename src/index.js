@@ -17,6 +17,7 @@ const DEFAULT_OWNER = 'WalltoWall'
 
 // Status strings for CLI output.
 const STATUS = {
+  FAILURE: colors.red('failure'),
   SUCCESS: colors.green('success'),
   WARNING: colors.yellow('warning'),
 }
@@ -96,14 +97,24 @@ getAllIssues(client).then(allIssues => {
       }
     }
 
-    const created = createIssue(client)(template)
-
-    console.log(
-      formatMessage({
-        status: 'success',
-        template,
-        message: `Issue created at #${created.number}.`,
+    createIssue(client)(template)
+      .then(created => {
+        console.log(
+          formatMessage({
+            status: 'success',
+            template,
+            message: `Issue created at #${created.number}.`,
+          })
+        )
       })
-    )
+      .catch(error => {
+        console.error(
+          formatMessage({
+            status: 'failure',
+            template,
+            message: `Unable to create issue\n  ${error}`,
+          })
+        )
+      })
   })
 })

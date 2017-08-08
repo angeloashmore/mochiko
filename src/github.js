@@ -3,28 +3,24 @@ import { encode } from 'base-64'
 
 export const createClient = ({ repo, token, user }) => (
   partialEndpoint,
-  options = {}
+  providedOptions = {}
 ) => {
   const endpoint = `https://api.github.com/repos/${repo}/${partialEndpoint}`
   const headers = {
     Authorization: 'Basic ' + encode(`${user}:${token}`),
   }
+  const options = {
+    method: 'GET',
+    ...providedOptions,
+  }
 
-  return fetch(endpoint, { ...options, headers })
-    .then(response => {
-      if (response.status >= 400) {
-        console.error(`Unable to process request <${endpoint}>`)
-        console.error(headers)
-        console.error(options)
-        throw new Error(response.statusText)
-      }
+  return fetch(endpoint, { ...options, headers }).then(response => {
+    if (response.status >= 400) {
+      throw new Error(`${options.method} <${endpoint}>: ${response.statusText}`)
+    }
 
-      return response.json()
-    })
-    .catch(error => {
-      console.log(error)
-      return error
-    })
+    return response.json()
+  })
 }
 
 export const getAllIssues = async (client, aggregated = [], page = 1) => {
