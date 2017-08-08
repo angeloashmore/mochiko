@@ -97,6 +97,7 @@ getAllIssues(client).then(allIssues => {
     }
 
     const created = createIssue(client)(template)
+
     console.log(
       formatMessage({
         status: 'success',

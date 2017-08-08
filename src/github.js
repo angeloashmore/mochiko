@@ -12,10 +12,17 @@ export const createClient = ({ repo, token, user }) => (
 
   return fetch(endpoint, { ...options, headers })
     .then(response => {
+      if (response.status >= 400) {
+        console.error(`Unable to process request <${endpoint}>`)
+        console.error(headers)
+        console.error(options)
+        throw new Error(response.statusText)
+      }
+
       return response.json()
     })
     .catch(error => {
-      console.error(error)
+      console.log(error)
       return error
     })
 }
