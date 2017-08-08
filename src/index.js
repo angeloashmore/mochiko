@@ -1,74 +1,106 @@
 import path from 'path'
 import fs from 'fs'
-import base64 from 'base-64'
-import fetch from 'node-fetch'
+import colors from 'colors/safe'
 import matter from 'gray-matter'
 import yargs from 'yargs'
 import getParentPackage from 'parent-package-json'
-import github from './github'
+import { createClient, createIssue, getAllIssues } from './github'
 
+// Location of templates directory.
+const TEMPLATES_DIR = path.resolve(__dirname, '..', 'issues')
+
+// Default GitHub repository owner. Only used when a parent package.json is
+// detected.
+const DEFAULT_OWNER = 'WalltoWall'
+
+// Status strings for CLI output.
+const STATUS = {
+  SUCCESS: colors.green('success'),
+  WARNING: colors.yellow('warning'),
+}
+
+// Get parent package.json data. Used to guess default repository (see usage in
+// the `repo` CLI argument configuration).
 const parentPackage = getParentPackage()
 
+// Setup CLI arguments.
 const { argv } = yargs
-  .option('token', {
-    alias: 't'
+  .option('user', {
+    alias: 'u',
+    describe: 'Username',
+    demandOption: true,
   })
-  .option('owner', {
-    alias: 'o',
-    default: 'WalltoWall'
+  .option('token', {
+    alias: 't',
+    describe: 'Personal access token',
+    demandOption: true,
   })
   .option('repo', {
     alias: 'r',
-    default: parentPackage ? parentPackage.name : undefined
+    describe: 'Full repository name (e.g. WalltoWall/mochiko)',
+    demandOption: true,
+    default: parentPackage
+      ? `${DEFAULT_OWNER}/${parentPackage.name}`
+      : undefined,
   })
+  .option('force', {
+    describe: 'Ignore existing issues',
+    default: false,
+  })
+  .help()
 
-github.authenticate({
-  type: 'token',
-  token: argv.token
-})
-
-const templatesDir = path.resolve(__dirname, '..', 'issues')
-const templates = fs.readdirSync(templatesDir)
-  .map(f => matter.read(path.join(templatesDir, f)))
-  .reverse()
-
-github.issues.getForRepo({
-  owner: argv.owner,
+// Create a GitHub v3 API client.
+const client = createClient({
   repo: argv.repo,
-  page: 1,
-  per_page: 100
-}, (err, res) => {
-  if (err) {
-    console.error(err)
-    return
-  }
-
-  const existingTitles = res.data.map(issue => issue.title)
-
-  const filtered = templates.filter(template => (
-    !existingTitles.includes(template.data.title)
-  ))
-
-  createAllIssues(filtered)
+  token: argv.token,
+  user: argv.user,
 })
 
-function createAllIssues (templates) {
-  templates.forEach(template => {
-    github.issues.create({
-      owner: argv.owner,
-      repo: argv.repo,
-      title: template.data.title,
-      body: template.content,
-      labels: template.data.labels,
-      assignees: template.data.assignees
-    }, (err, res) => {
-      if (err) {
-        console.error(err)
-        return
-      }
+// Get all templates and read contents.
+const templates = fs
+  .readdirSync(TEMPLATES_DIR)
+  .map(name => path.join(TEMPLATES_DIR, name))
+  .map(file => ({ ...matter.read(file), file }))
 
-      console.log(`Successfully created issue #${res.data.number}: ${template.data.title}`)
-    })
-  })
+// Factory to create issue existance checker. Simple algorithm checks if an
+// issue, open or closed, with the same title as the template already exists.
+// Algorhithm can be improved if issues (*crickets*) occur.
+const findExistingIssueFactory = allExisting => template =>
+  allExisting.find(issue => issue.title === template.data.title)
+
+// Creates a formatted string to display information about a template.
+const formatMessage = ({ status, template, message }) => {
+  const basename = path.basename(template.file)
+  return `${STATUS[status.toUpperCase()]} [${basename}] ${message}`
 }
 
+// Do the thing, where the thing is create GitHub issues.
+getAllIssues(client).then(allIssues => {
+  const findExistingIssue = findExistingIssueFactory(allIssues)
+
+  templates.forEach(template => {
+    if (!argv.force) {
+      const existing = findExistingIssue(template)
+
+      if (existing) {
+        console.log(
+          formatMessage({
+            status: 'warning',
+            template,
+            message: `Issue exists at #${existing.number}. Skipping.`,
+          })
+        )
+        return
+      }
+    }
+
+    const created = createIssue(client)(template)
+    console.log(
+      formatMessage({
+        status: 'success',
+        template,
+        message: `Issue created at #${created.number}.`,
+      })
+    )
+  })
+})
