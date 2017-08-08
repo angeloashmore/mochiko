@@ -11,6 +11,9 @@ import { createClient, createIssue, createLabel, getAllIssues } from './github'
 // Location of templates directory.
 const TEMPLATES_DIR = path.resolve(__dirname, '..', 'issues')
 
+// Extension for template files.
+const TEMPLATES_EXTENSION = '.md'
+
 // Status strings for CLI output.
 const STATUS = {
   FAILURE: colors.red('failure'),
@@ -52,8 +55,18 @@ const { argv } = yargs
     demandOption: true,
     default: repo ? `${repo.owner}/${repo.name}` : undefined,
   })
+  .option('templates', {
+    alias: '-f',
+    describe: 'List of templates to use',
+    type: 'array',
+  })
   .option('force', {
     describe: 'Ignore existing issues',
+    default: false,
+  })
+  .option('dry-run', {
+    alias: '-n',
+    describe: "Don't create issues, but show what would have been created",
     default: false,
   })
   .help()
@@ -66,8 +79,9 @@ const client = createClient({
 })
 
 // Get all templates and read contents.
-const templates = fs
-  .readdirSync(TEMPLATES_DIR)
+const templates = (argv.templates
+  ? argv.templates.map(name => `${name}.md`)
+  : fs.readdirSync(TEMPLATES_DIR))
   .map(name => path.join(TEMPLATES_DIR, name))
   .map(file => ({ ...matter.read(file), file }))
 
@@ -101,25 +115,35 @@ getAllIssues(client)
         }
       }
 
-      createIssue(client)(template)
-        .then(created => {
-          console.log(
-            formatMessage({
-              status: 'success',
-              tag: path.basename(template.file),
-              message: `Issue created at #${created.number}.`,
-            })
-          )
-        })
-        .catch(error => {
-          console.error(
-            formatMessage({
-              status: 'failure',
-              tag: path.basename(template.file),
-              message: `Unable to create issue\n  ${error}`,
-            })
-          )
-        })
+      if (argv.dryRun) {
+        console.log(
+          formatMessage({
+            status: 'success',
+            tag: path.basename(template.file),
+            message: `Issue created at #<dry-run>.`,
+          })
+        )
+      } else {
+        createIssue(client)(template)
+          .then(created => {
+            console.log(
+              formatMessage({
+                status: 'success',
+                tag: path.basename(template.file),
+                message: `Issue created at #${created.number}.`,
+              })
+            )
+          })
+          .catch(error => {
+            console.error(
+              formatMessage({
+                status: 'failure',
+                tag: path.basename(template.file),
+                message: `Unable to create issue\n  ${error}`,
+              })
+            )
+          })
+      }
     })
   })
   .catch(error => {
