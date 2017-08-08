@@ -52,3 +52,12 @@ export const createIssue = client => async template => {
     body,
   })
 }
+
+export const createLabel = client => async label => {
+  const body = JSON.stringify(label)
+
+  return await client('labels', {
+    method: 'POST',
+    body,
+  })
+}

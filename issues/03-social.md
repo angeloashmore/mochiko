@@ -1,5 +1,7 @@
 ---
 title: Social
+labels:
+  - mochiko
 ---
 
 - [ ] Open Graph tags included across website and appropriate? (including images where possible)

@@ -1,5 +1,7 @@
 ---
 title: SEO & Analytics
+labels:
+  - mochiko
 ---
 
 - [ ] Page titles are descriptive and SEO friendly

@@ -6,7 +6,7 @@ import colors from 'colors/safe'
 import matter from 'gray-matter'
 import yargs from 'yargs'
 import getParentPackage from 'parent-package-json'
-import { createClient, createIssue, getAllIssues } from './github'
+import { createClient, createIssue, createLabel, getAllIssues } from './github'
 
 // Location of templates directory.
 const TEMPLATES_DIR = path.resolve(__dirname, '..', 'issues')
@@ -20,6 +20,12 @@ const STATUS = {
   FAILURE: colors.red('failure'),
   SUCCESS: colors.green('success'),
   WARNING: colors.yellow('warning'),
+}
+
+// Label used to identify mochiko-created tasks.
+const LABEL = {
+  name: 'mochiko',
+  color: '9842f4', // purple
 }
 
 // Get parent package.json data. Used to guess default repository (see usage in
@@ -77,6 +83,9 @@ const formatMessage = ({ status, template, message }) => {
   return `${STATUS[status.toUpperCase()]} [${basename}] ${message}`
 }
 
+// Create the standard mochiko label. Ignore errors.
+createLabel(client)(LABEL).catch(() => {})
+
 // Do the thing, where the thing is create GitHub issues.
 getAllIssues(client).then(allIssues => {
   const findExistingIssue = findExistingIssueFactory(allIssues)
@@ -90,7 +99,7 @@ getAllIssues(client).then(allIssues => {
           formatMessage({
             status: 'warning',
             template,
-            message: `Issue exists at #${existing.number}. Skipping.`,
+            message: `Issue exists at #${existing.number}. Use --force to create.`,
           })
         )
         return

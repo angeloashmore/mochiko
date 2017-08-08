@@ -1,5 +1,7 @@
 ---
 title: Content
+labels:
+  - mochiko
 ---
 
 - [ ] All text free from spelling errors
