@@ -1,0 +1,21 @@
+{
+  "private": "true",
+  "main": "build/index.js",
+  "module": "src/index.js",
+  "scripts": {
+    "build": "babel src --out-dir build",
+    "watch": "npm run build -- --watch"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0"
+  },
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "github": "^9.2.0",
+    "gray-matter": "^3.0.2",
+    "node-fetch": "^1.7.1",
+    "parent-package-json": "^2.0.0",
+    "yargs": "^8.0.2"
+  }
+}
