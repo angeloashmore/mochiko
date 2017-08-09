@@ -1,4 +1,4 @@
-# Mochiko
+# mochiko
 
 An automated GitHub issues generator for new projects.
 
