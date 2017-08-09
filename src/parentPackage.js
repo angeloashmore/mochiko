@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import url from 'url'
+import sshurl from 'ssh-url'
 
 const ROOT = '/'
 const FILENAME = 'package.json'
@@ -58,10 +59,15 @@ export const getParentPackage = (skip = 1) => {
 
 // Get the repository owner and name from the provided package.
 export const extractRepository = data => {
-  const { pathname } = url.parse(data.repository.url)
+  let parsed = url.parse(data.repository.url)
+
+  // Dumb check to determine if URL is SSH or HTTP.
+  if (parsed.host === null) {
+    parsed = sshurl.parse(data.repository.url)
+  }
 
   return {
-    owner: pathname.split('/')[1],
-    name: path.basename(pathname, '.git'),
+    owner: parsed.pathname.split('/')[1],
+    name: path.basename(parsed.pathname, '.git'),
   }
 }
