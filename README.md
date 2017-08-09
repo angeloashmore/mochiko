@@ -50,7 +50,7 @@ Use the `--help` flag to see all available options.
 yarn mochiko -- --help
 ```
 
-### Dry Runs
+### Dry runs
 
 You may perform a "dry-run" to see what issues would be created without sending
 any create issue requests.
@@ -72,24 +72,24 @@ yarn mochiko -- --dry-run
   Provide a list of templates using `-f`:
 
   ```sh
-  yarn mochiko -- -f 01-content
+  yarn mochiko -- -f 01-content 03-social
   ```
 
-## Creating New Issues
+## Creating new issues
 
 **Note**: There is currently not a way to load custom issues. You can, however,
 explicitly define which issues are loaded (see above for an example).
 
 Issues are created using Markdown files with relevant frontmatter.
 
-### Frontmatter Options:
+### Frontmatter options
 
 | Key | Description |
 | --- | --- |
 | `title` | Title of the issue. |
 | `labels` | Array of labels to add to the issue. |
 | `assignees` | Array of assignee usernames. |
-| `milestone` | Milestone number to associate |
+| `milestone` | Milestone number to associate with the issue. |
 
 A standard `mochiko` label is created during script execution. It is not added
 to an issue by default, but including it is recommended.
