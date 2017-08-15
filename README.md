@@ -10,6 +10,12 @@ Checklist][0].
 
 ## Installation
 
+mochiko can be installed locally (preferred) or globally. The tool will look
+for your project's `package.json` file to grab the repository URL, if
+available.
+
+### Local installation (preferred)
+
 1. Add `mochiko` to your project's development dependencies.
 
    ```sh
@@ -31,12 +37,41 @@ Checklist][0].
    // ...
    ```
 
+1. Use mochiko with `yarn run mochiko -- <options here>` in your project
+   directory.
+
+### Global installation
+
+1. Add `mochiko` to your global packages.
+
+   ```sh
+   yarn global add mochiko
+   ```
+
+1. Use mochiko anywhere and provide the GitHut repository as an option.
+
+   ```sh
+   mochiko -u <username> -t <personal_access_token> -r <full_repository_name>
+   ```
+
+   Or use mochiko in your project directory.
+
+1. Use mochiko with `mochiko -- <options here>` in your project directory.
+
 ## Usage
 
 All calls to mochiko require a GitHub username and personal access token.
 
 ```sh
-yarn mochiko -- -u <username> -t <personal_access_token>
+mochiko -u <username> -t <personal_access_token>
+```
+
+mochiko will try to get your GitHub repository name from your `package.json` if
+provided. If it is not included in your `project.json`, include it as an
+option.
+
+```sh
+mochiko -u <username> -t <personal_access_token> -r <full_repository_name>
 ```
 
 **Note**: The following examples exclude the `-u` and `-t` parameters for
@@ -47,7 +82,7 @@ conciseness, *but they are required for all calls*.
 Use the `--help` flag to see all available options.
 
 ```sh
-yarn mochiko -- --help
+mochiko --help
 ```
 
 ### Dry runs
@@ -56,7 +91,7 @@ You may perform a "dry-run" to see what issues would be created without sending
 any create issue requests.
 
 ```sh
-yarn mochiko -- --dry-run
+mochiko --dry-run
 ```
 
 ### Examples
@@ -64,7 +99,7 @@ yarn mochiko -- --dry-run
 - **Create all issues**
 
   ```sh
-  yarn mochiko
+  mochiko
   ```
 
 - **Create specific issues**
@@ -72,7 +107,7 @@ yarn mochiko -- --dry-run
   Provide a list of templates using `-f`:
 
   ```sh
-  yarn mochiko -- -f 01-content 03-social
+  mochiko -f 01-content 03-social
   ```
 
 ## Creating new issues
