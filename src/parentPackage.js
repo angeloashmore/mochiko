@@ -6,59 +6,59 @@ import sshurl from 'ssh-url'
 const ROOT = '/'
 const FILENAME = 'package.json'
 
-// Find a file starting from the a base directory (__dirname by default) and
-// working upward until found. If found, returns the full path to the file. If
-// not found, return false. Provide a skip amount to skip a certain quantity of
-// found files.
-const findFileUpward = ({ file, basedir = __dirname, skip = 0 }) => {
-  // Ensure we are just looking at a filename, not a whole path.
+// Find a file starting from the a base directory and working upward until
+// found. If found, returns the full path to the file.  If not found, return
+// false. Provide a skip amount to skip a certain quantity of found files.
+const findFileUpward = ({
+  dir,
+  endDir = ROOT,
+  file,
+  skip = 0,
+}) => {
+  const resolvedDir = path.resolve(dir)
+
+  // If dir is not a subdirectory of endDir, return false.
+  if (path.relative(endDir, resolvedDir).startsWith('..')) return false
+
+  // Ensure we are just looking for a filename, not a whole path.
   const basename = path.basename(file)
+  const files = fs.readdirSync(resolvedDir)
 
-  const recursiveFun = dir => {
-    const resolved = path.resolve(dir)
-    const files = fs.readdirSync(resolved)
-    const oneUp = path.join(dir, '..')
-
-    // Return the dir if it includes FILENAME.
-    if (files.includes(basename)) {
-      // Skip file if skip is still above 0.
-      if (skip > 0) {
-        skip--
-
-        return recursiveFun(oneUp)
-      }
-
-      return path.join(dir, basename)
+  if (files.includes(basename) && skip > 0) {
+    if (skip > 0) {
+      skip--
+    } else {
+      return path.join(resolvedDir, basename)
     }
-
-    // Reached top directory, but didn't find any package.json. Cry.
-    if (resolved === ROOT) {
-      return false
-    }
-
-    // Try the function again, but one directory up.
-    return recursiveFun(oneUp)
   }
 
-  return recursiveFun(basedir)
+  return findFileUpward({
+    dir: path.join(resolvedDir, '..'),
+    endDir,
+    file: basename,
+    skip,
+  })
 }
 
 // Returns the immediate parent's package.json data.
-export const getParentPackage = (skip = 1) => {
+export const getParentPackage = () => {
   const file = findFileUpward({
+    dir: __dirname,
     file: FILENAME,
-    skip,
+    skip: 1,
   })
 
-  if (!file) return false
-
-  const contents = fs.readFileSync(file, 'utf-8')
-
-  return JSON.parse(contents)
+  try {
+    return require(file)
+  } catch (e) {
+    return false
+  }
 }
 
 // Get the repository owner and name from the provided package.
 export const extractRepository = data => {
+  if (!data.repository || !data.repository.url) return false
+
   let parsed = url.parse(data.repository.url)
 
   // Dumb check to determine if URL is SSH or HTTP.

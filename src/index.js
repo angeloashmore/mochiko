@@ -80,7 +80,7 @@ const client = createClient({
 
 // Get all templates and read contents.
 const templates = (argv.templates
-  ? argv.templates.map(name => `${name}.md`)
+  ? argv.templates.map(name => `${name}.${TEMPLATES_EXTENSION}`)
   : fs.readdirSync(TEMPLATES_DIR))
   .map(name => path.join(TEMPLATES_DIR, name))
   .map(file => ({ ...matter.read(file), file }))
